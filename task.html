@@ -1,0 +1,570 @@
+# thisis my changes
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2196F3, #21CBF3);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .add-task {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .task-form {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-group input {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+
+        .add-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .filters {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #dee2e6;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .filter-btn.active {
+            background: #2196F3;
+            color: white;
+            border-color: #2196F3;
+        }
+
+        .tasks-container {
+            padding: 30px;
+            min-height: 400px;
+        }
+
+        .task-item {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .task-item:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .task-item.completed {
+            opacity: 0.7;
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+
+        .task-item.overdue {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .task-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .task-date {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .complete-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .complete-btn:hover {
+            background: #218838;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .no-tasks {
+            text-align: center;
+            color: #6c757d;
+            font-size: 1.2em;
+            margin-top: 50px;
+        }
+
+        .reminder-badge {
+            background: #ffc107;
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .stats {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .stat-item {
+            color: #495057;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2196F3;
+        }
+
+        @media (max-width: 768px) {
+            .task-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .task-header {
+                flex-direction: column;
+                align-items: start;
+                gap: 10px;
+            }
+            
+            .task-actions {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Task Manager</h1>
+            <p>Stay organized and productive with smart task management</p>
+        </div>
+
+        <div class="add-task">
+            <form class="task-form" id="taskForm">
+                <div class="form-group">
+                    <label for="taskInput">Task Description</label>
+                    <input type="text" id="taskInput" placeholder="Enter your task..." required>
+                </div>
+                <div class="form-group">
+                    <label for="dueDateInput">Due Date</label>
+                    <input type="date" id="dueDateInput">
+                </div>
+                <button type="submit" class="add-btn">➕ Add Task</button>
+            </form>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All Tasks</button>
+            <button class="filter-btn" data-filter="pending">Pending</button>
+            <button class="filter-btn" data-filter="completed">Completed</button>
+            <button class="filter-btn" data-filter="overdue">Overdue</button>
+        </div>
+
+        <div class="tasks-container" id="tasksContainer">
+            <div class="no-tasks">
+                <p>🎯 No tasks yet! Add your first task above to get started.</p>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalTasks">0</div>
+                <div>Total Tasks</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="completedTasks">0</div>
+                <div>Completed</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="pendingTasks">0</div>
+                <div>Pending</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ToDoApp {
+            constructor() {
+                this.tasks = [];
+                this.currentFilter = 'all';
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.checkReminders();
+                // Check for reminders every minute
+                setInterval(() => this.checkReminders(), 60000);
+            }
+
+            bindEvents() {
+                document.getElementById('taskForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addTask();
+                });
+
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.setFilter(e.target.dataset.filter);
+                    });
+                });
+            }
+
+            addTask() {
+                const taskInput = document.getElementById('taskInput');
+                const dueDateInput = document.getElementById('dueDateInput');
+                
+                const task = {
+                    id: Date.now(),
+                    title: taskInput.value.trim(),
+                    dueDate: dueDateInput.value,
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                };
+
+                this.tasks.push(task);
+                this.renderTasks();
+                this.updateStats();
+                
+                // Clear form
+                taskInput.value = '';
+                dueDateInput.value = '';
+            }
+
+            toggleTask(id) {
+                const task = this.tasks.find(t => t.id === id);
+                if (task) {
+                    task.completed = !task.completed;
+                    this.renderTasks();
+                    this.updateStats();
+                }
+            }
+
+            deleteTask(id) {
+                this.tasks = this.tasks.filter(t => t.id !== id);
+                this.renderTasks();
+                this.updateStats();
+            }
+
+            setFilter(filter) {
+                this.currentFilter = filter;
+                
+                // Update filter buttons
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+                
+                this.renderTasks();
+            }
+
+            getFilteredTasks() {
+                const now = new Date();
+                
+                return this.tasks.filter(task => {
+                    switch (this.currentFilter) {
+                        case 'completed':
+                            return task.completed;
+                        case 'pending':
+                            return !task.completed;
+                        case 'overdue':
+                            return !task.completed && task.dueDate && new Date(task.dueDate) < now;
+                        default:
+                            return true;
+                    }
+                });
+            }
+
+            isOverdue(task) {
+                if (!task.dueDate || task.completed) return false;
+                return new Date(task.dueDate) < new Date();
+            }
+
+            isDueSoon(task) {
+                if (!task.dueDate || task.completed) return false;
+                const dueDate = new Date(task.dueDate);
+                const now = new Date();
+                const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+                return dueDate <= tomorrow && dueDate >= now;
+            }
+
+            formatDate(dateString) {
+                if (!dateString) return '';
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+            }
+
+            renderTasks() {
+                const container = document.getElementById('tasksContainer');
+                const filteredTasks = this.getFilteredTasks();
+
+                if (filteredTasks.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-tasks">
+                            <p>📝 No tasks found for the current filter.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = filteredTasks.map(task => {
+                    const isOverdue = this.isOverdue(task);
+                    const isDueSoon = this.isDueSoon(task);
+                    
+                    return `
+                        <div class="task-item ${task.completed ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}">
+                            <div class="task-header">
+                                <div class="task-title">${task.title}</div>
+                                <div class="task-actions">
+                                    <button class="action-btn complete-btn" onclick="app.toggleTask(${task.id})">
+                                        ${task.completed ? '↩️ Undo' : '✅ Complete'}
+                                    </button>
+                                    <button class="action-btn delete-btn" onclick="app.deleteTask(${task.id})">
+                                        🗑️ Delete
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="task-meta">
+                                ${task.dueDate ? `
+                                    <div class="task-date">
+                                        📅 Due: ${this.formatDate(task.dueDate)}
+                                        ${isOverdue ? '<span class="reminder-badge">OVERDUE</span>' : ''}
+                                        ${isDueSoon && !isOverdue ? '<span class="reminder-badge">DUE SOON</span>' : ''}
+                                    </div>
+                                ` : ''}
+                                <div>Created: ${this.formatDate(task.createdAt.split('T')[0])}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            updateStats() {
+                const total = this.tasks.length;
+                const completed = this.tasks.filter(t => t.completed).length;
+                const pending = total - completed;
+
+                document.getElementById('totalTasks').textContent = total;
+                document.getElementById('completedTasks').textContent = completed;
+                document.getElementById('pendingTasks').textContent = pending;
+            }
+
+            checkReminders() {
+                const now = new Date();
+                const dueSoonTasks = this.tasks.filter(task => {
+                    if (task.completed || !task.dueDate) return false;
+                    const dueDate = new Date(task.dueDate);
+                    const timeDiff = dueDate - now;
+                    // Remind if due within 24 hours
+                    return timeDiff > 0 && timeDiff <= 24 * 60 * 60 * 1000;
+                });
+
+                const overdueTasks = this.tasks.filter(task => this.isOverdue(task));
+
+                if (dueSoonTasks.length > 0 || overdueTasks.length > 0) {
+                    let message = '';
+                    if (overdueTasks.length > 0) {
+                        message += `⚠️ You have ${overdueTasks.length} overdue task(s)!\n`;
+                    }
+                    if (dueSoonTasks.length > 0) {
+                        message += `⏰ ${dueSoonTasks.length} task(s) due soon!`;
+                    }
+                    
+                    // Only show alert if there are actually overdue tasks to avoid spam
+                    if (overdueTasks.length > 0) {
+                        console.log(message); // Log instead of alert to avoid interrupting user
+                    }
+                }
+            }
+
+            // Demo data for testing
+            loadDemoData() {
+                const demoTasks = [
+                    {
+                        id: 1,
+                        title: "Complete project documentation",
+                        dueDate: "2025-09-02",
+                        completed: false,
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: 2,
+                        title: "Review code with team",
+                        dueDate: "2025-09-01",
+                        completed: true,
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: 3,
+                        title: "Update user interface",
+                        dueDate: "2025-08-30",
+                        completed: false,
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+                
+                this.tasks = demoTasks;
+                this.renderTasks();
+                this.updateStats();
+            }
+        }
+
+        // Initialize the app
+        const app = new ToDoApp();
+        
+        // Load demo data on page load
+        window.addEventListener('load', () => {
+            app.loadDemoData();
+        });
+    </script>
+</body>
+</html>
